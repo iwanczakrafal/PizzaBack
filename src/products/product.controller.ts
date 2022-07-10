@@ -1,37 +1,74 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Inject} from '@nestjs/common';
-import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    Inject,
+    UseInterceptors,
+    UploadedFiles,
+    Res,
+    Put
+} from '@nestjs/common';
+import {ProductService} from './product.service';
+import {CreateProductDto} from './dto/create-product.dto';
+import {FileFieldsInterceptor} from "@nestjs/platform-express";
+import * as path from "path";
+import {multerStorage, storageDir} from "../utils/storage";
+import {MulterDiskUploadedFiles, ProductItemInterface} from "../types";
+import { ProductItem } from './entities/product-item.entity';
 
 
 @Controller('product')
 export class ProductController {
-  constructor(
-      @Inject(ProductService) private productService: ProductService
-  ) {}
+    constructor(
+        @Inject(ProductService) private productService: ProductService
+    ) {
+    }
 
-  @Post()
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
-  }
+    @Post("/")
+    @UseInterceptors(
+        FileFieldsInterceptor([
+                {
+                    name: 'photo', maxCount: 1
+                },
+            ], {storage: multerStorage(path.join(storageDir(), 'products-photos'))}
+        ),
+    )
+    addProduct(
+        @Body() req: CreateProductDto,
+        @UploadedFiles() files: MulterDiskUploadedFiles,
+    ):Promise<ProductItemInterface> {
+        return this.productService.addProduct(req, files);
+    }
 
-  @Get()
-  findAll() {
-    return this.productService.findAll();
-  }
+    @Get("/")
+    getAllProducts(): Promise<ProductItemInterface[]> {
+        return this.productService.getAllProducts();
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productService.findOne(+id);
-  }
+    @Get("/find/:id")
+    getOneProduct(
+        @Param('id') id: string,
+    ): Promise<ProductItem> {
+        return this.productService.getProduct(id);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
-  }
+    @Get('/photo/:id')
+    async getPhoto(
+        @Param('id') id: string,
+        @Res() res: any,
+    ): Promise<any> {
+        return this.productService.getPhoto(id, res);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productService.remove(+id);
-  }
+    @Delete("/:id")
+    removeProduct(
+        @Param("id") id: string
+    ) {
+        return this.productService.removeProduct(id);
+    }
+
 }

@@ -26,6 +26,11 @@ export class ProductItem  extends BaseEntity {
     @Column()
     price: number;
 
+    @Column({
+        default: () => "CURRENT_TIMESTAMP"
+    })
+    createdAt: Date;
+
     @OneToMany(type => ProductInBasket, entity => entity.productItem)
     productsInBasket: ProductInBasket[];
 }
