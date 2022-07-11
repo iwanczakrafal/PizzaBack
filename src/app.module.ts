@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { ProductModule } from './products/product.module';
 import { BasketModule } from './basket/basket.module';
 import { OptionModule } from './option/option.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -21,7 +22,8 @@ import { OptionModule } from './option/option.module';
   }),
     ProductModule,
     BasketModule,
-    OptionModule
+    OptionModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

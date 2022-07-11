@@ -54,14 +54,18 @@ export class ProductService {
         }
     }
 
-    async getAllProducts(): Promise<ProductItemInterface[]> {
-        const products = (await ProductItem.find()).map(product => this.filter(product));
+    async getAllProductsWithoutSpecial(): Promise<ProductItemInterface[]> {
+       return (await ProductItem.find({where: {isSpecial:false}})).map(product => this.filter(product));
 
-        return products;
+    }
+    async getAllProducts(): Promise<ProductItemInterface[]> {
+        return (await ProductItem.find()).map(product => this.filter(product));
+
+
     }
 
     async getPhoto(id: string, res: any) {
-            const product = await this.getProduct(id);
+            const product = await this.getOneProduct(id);
         try {
 
             if (!product) {
@@ -83,7 +87,7 @@ export class ProductService {
         }
     }
 
-    async getProduct(id: string): Promise<ProductItem> {
+    async getOneProduct(id: string): Promise<ProductItem> {
         return await this.dataSource
             .createQueryBuilder()
             .select('productItem')
@@ -92,8 +96,19 @@ export class ProductService {
             .getOne();
     }
 
+    async getProductWithoutSpecial(id: string): Promise<ProductItem> {
+        return await this.dataSource
+            .createQueryBuilder()
+            .select('productItem')
+            .from(ProductItem,'productItem')
+            .where('id = :id', {id})
+            .andWhere('isSpecial = false')
+            .getOne();
+
+    }
+
     async removeProduct(id: string) {
-        const { photo } = await this.getProduct(id);
+        const { photo } = await this.getProductWithoutSpecial(id);
 
         try {
             if (photo) {

@@ -3,39 +3,45 @@ import {ProductInBasket} from "../../basket/entities/product-in-basket.entity";
 
 
 @Entity()
-export class ProductItem  extends BaseEntity {
-    @PrimaryGeneratedColumn('uuid')
+export class User extends BaseEntity {
+    @PrimaryGeneratedColumn("uuid")
     id: string;
 
     @Column({
-        length:60
+        length: 20
     })
     name: string;
 
     @Column({
-        length:200
+        length: 55
     })
-    description: string;
+    lastName: string;
+
+    @Column({
+        length: 255
+    })
+    email: string;
+
+    @Column()
+    passwordHash: string;
 
     @Column({
         default: null,
-        nullable: true,
+        nullable: true
     })
-    photo: string;
-
-    @Column()
-    price: number;
+    tokenId: string | null;
 
     @Column({
         default: false
     })
-    isSpecial: boolean;
+    isAdmin: boolean;
 
     @Column({
         default: () => "CURRENT_TIMESTAMP"
     })
     createdAt: Date;
 
-    @OneToMany(type => ProductInBasket, entity => entity.productItem)
+    @OneToMany(type => ProductInBasket, entity => entity.user)
     productsInBasket: ProductInBasket[];
+
 }
