@@ -7,6 +7,8 @@ export interface RegisterUserRes {
 
 export type UserInfoForAdminRes = RegisterUserRes;
 
+export type UpdateUserPwdRes = DeleteAccountRes
+
 export type DeleteAccountRes = {
     message: string;
     isSuccess: true;

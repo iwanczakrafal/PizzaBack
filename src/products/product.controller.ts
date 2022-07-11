@@ -3,14 +3,13 @@ import {
     Get,
     Post,
     Body,
-    Patch,
     Param,
     Delete,
     Inject,
     UseInterceptors,
     UploadedFiles,
     Res,
-    Put
+    UseGuards
 } from '@nestjs/common';
 import {ProductService} from './product.service';
 import {CreateProductDto} from './dto/create-product.dto';
@@ -19,6 +18,7 @@ import * as path from "path";
 import {multerStorage, storageDir} from "../utils/storage";
 import {MulterDiskUploadedFiles, ProductItemInterface} from "../types";
 import {ProductItem} from './entities/product-item.entity';
+import {AuthGuard} from "@nestjs/passport";
 
 
 @Controller('product')
@@ -29,6 +29,7 @@ export class ProductController {
     }
 
     @Post("/")
+    @UseGuards(AuthGuard('jwtAdmin'))
     @UseInterceptors(
         FileFieldsInterceptor([
                 {
@@ -45,24 +46,26 @@ export class ProductController {
     }
 
     @Get("/")
-    getAllProducts(): Promise<ProductItemInterface[]> {
+    getAllProductsForGuests(): Promise<ProductItemInterface[]> {
         return this.productService.getAllProductsWithoutSpecial();
     }
 
     @Get("/special")
+    @UseGuards(AuthGuard('jwt'))
     getAllProductsForUsers(): Promise<ProductItemInterface[]> {
         return this.productService.getAllProducts();
     }
 
     @Get('/special/:id')
-    getOneProduct(
+    @UseGuards(AuthGuard('jwt'))
+    getOneProductForUsers(
         @Param('id') id: string
     ): Promise<ProductItem> {
         return this.productService.getOneProduct(id);
     }
 
     @Get("/:id")
-    getOneProductWithoutSpecial(
+    getOneProductForGuests(
         @Param('id') id: string,
     ): Promise<ProductItem> {
         return this.productService.getProductWithoutSpecial(id);
@@ -78,6 +81,7 @@ export class ProductController {
     }
 
     @Delete("/:id")
+    @UseGuards(AuthGuard('jwtAdmin'))
     removeProduct(
         @Param("id") id: string
     ) {

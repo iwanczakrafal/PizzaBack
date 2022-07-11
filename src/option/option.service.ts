@@ -2,6 +2,7 @@ import {forwardRef, Inject, Injectable} from '@nestjs/common';
 import { CreateOptionDto } from './dto/create-option.dto';
 import { UpdateOptionDto } from './dto/update-option.dto';
 import {BasketService} from "../basket/basket.service";
+import {OptionItem} from "./entities/option-item.entity";
 
 @Injectable()
 export class OptionService {
@@ -17,8 +18,8 @@ export class OptionService {
     return `This action returns all option`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} option`;
+  async getOneOption(id: string) {
+    return await OptionItem.findOne({where: {id}}) ;
   }
 
   update(id: number, updateOptionDto: UpdateOptionDto) {

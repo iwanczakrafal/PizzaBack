@@ -1,6 +1,7 @@
 import { OptionItem } from "src/option/entities/option-item.entity";
 import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {ProductItem} from "../../products/entities/product-item.entity";
+import {User} from "../../user/entities/user.entity";
 
 @Entity()
 export class ProductInBasket extends BaseEntity{
@@ -20,7 +21,7 @@ export class ProductInBasket extends BaseEntity{
     @JoinColumn()
     option: OptionItem;
 
-    // @ManyToOne(type => User, entity => entity.productsInBasket)
-    // @JoinColumn()
-    // user: User ;
+    @ManyToOne(type => User, entity => entity.productsInBasket)
+    @JoinColumn()
+    user: User ;
 }

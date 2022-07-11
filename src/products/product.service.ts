@@ -1,13 +1,14 @@
 import {forwardRef, Inject, Injectable} from '@nestjs/common';
 import {BasketService} from 'src/basket/basket.service';
 import {CreateProductDto} from './dto/create-product.dto';
-import {UpdateProductDto} from './dto/update-product.dto';
 import {MulterDiskUploadedFiles, ProductItemInterface} from "../types";
 import {ProductItem} from "./entities/product-item.entity";
 import * as path from "path";
 import {storageDir} from "../utils/storage";
 import { promises as fs } from 'fs';
 import {DataSource} from "typeorm";
+import * as striptags from "striptags";
+import {User} from "../user/entities/user.entity";
 
 
 @Injectable()
@@ -25,11 +26,11 @@ export class ProductService {
 
     async addProduct(req: CreateProductDto, files: MulterDiskUploadedFiles): Promise<ProductItemInterface> {
         const photo = files?.photo?.[0] ?? null;
-        console.log(photo)
+
         try {
             const newProduct = new ProductItem();
-            newProduct.name = req.name;
-            newProduct.description = req.description;
+            newProduct.name = striptags(req.name);
+            newProduct.description = striptags(req.description);
             newProduct.price = req.price;
 
 
@@ -108,11 +109,21 @@ export class ProductService {
     }
 
     async removeProduct(id: string) {
-        const { photo } = await this.getProductWithoutSpecial(id);
+        const { photo } = await this.getOneProduct(id);
 
         try {
             if (photo) {
                 await fs.unlink(path.join(storageDir(),'products-photos', photo));
+            }
+            const baskets = await this.basketService.getAllBasketsForAdmin();
+            const productsToDeleteFromRelation =
+                baskets
+                    .filter(basket => basket.productItem.id === id)
+                    .map(order => ({ orderId: order.id, userId: order.user.id }));
+
+            for (const productToDeleteFromRelation of productsToDeleteFromRelation) {
+                const user = await User.findOne({where:{ id: productToDeleteFromRelation.userId }})
+                await this.basketService.removeProductFromBasket(productToDeleteFromRelation.orderId, user);
             }
             await ProductItem.delete(id);
         } catch (error) {

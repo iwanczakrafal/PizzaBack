@@ -22,7 +22,7 @@ export class OptionController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.optionService.findOne(+id);
+    return this.optionService.getOneOption(id);
   }
 
   @Patch(':id')

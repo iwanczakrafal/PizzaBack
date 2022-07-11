@@ -6,6 +6,7 @@ import { ProductModule } from './products/product.module';
 import { BasketModule } from './basket/basket.module';
 import { OptionModule } from './option/option.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -24,6 +25,7 @@ import { UserModule } from './user/user.module';
     BasketModule,
     OptionModule,
     UserModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from '@nestjs/common';
+import {Controller, Get, Post, Body, Param, Delete, Inject, UseGuards} from '@nestjs/common';
 import { BasketService } from './basket.service';
-import { CreateBasketDto } from './dto/create-basket.dto';
-import { UpdateBasketDto } from './dto/update-basket.dto';
+import { AddProductToBasketDto } from './dto/add-product-to-basket.dto';
+import {
+  AddProductToBasketRes,
+  GetBasketStatsRes,
+  GetTotalBasketPriceRes,
+  ProductsFromBasketRes,
+  RemoveProductFromBasketRes
+} from "../types";
+import {UserObj} from "../decorators/user-obj.decorator";
+import {User} from "../user/entities/user.entity";
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('basket')
 export class BasketController {
@@ -9,28 +18,63 @@ export class BasketController {
       @Inject(BasketService) private basketService: BasketService
   ) {}
 
-  @Post()
-  create(@Body() createBasketDto: CreateBasketDto) {
-    return this.basketService.create(createBasketDto);
+  @Get("/")
+  @UseGuards(AuthGuard('jwt'))
+  getAllBasketProductsForUser(
+      @UserObj() user: User
+  ): Promise<ProductsFromBasketRes> {
+    return this.basketService.getAllBasketProductsForUser(user);
+  }
+  @Get("/admin")
+  @UseGuards(AuthGuard('jwtAdmin'))
+  getBasketsForAdmin(): Promise<ProductsFromBasketRes> {
+    return this.basketService.getAllBasketsForAdmin();
   }
 
-  @Get()
-  findAll() {
-    return this.basketService.findAll();
+  @Get("/stats")
+  @UseGuards(AuthGuard('jwtAdmin'))
+  getStats(): Promise<GetBasketStatsRes> {
+    return this.basketService.getStats();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.basketService.findOne(+id);
+
+
+  @Get("/total-price")
+  @UseGuards(AuthGuard('jwt'))
+  getTotalPrice(
+      @UserObj() user: User,
+  ): Promise<GetTotalBasketPriceRes> {
+    return this.basketService.totalPrice(user);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBasketDto: UpdateBasketDto) {
-    return this.basketService.update(+id, updateBasketDto);
+
+
+
+
+  @Post("/")
+  @UseGuards(AuthGuard('jwt'))
+  addProductToBasket(
+      @Body() item: AddProductToBasketDto,
+      @UserObj() user: User,
+  ): Promise<AddProductToBasketRes> {
+
+    return this.basketService.addProductToBasket(item, user);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.basketService.remove(+id);
+  @Delete("/all")
+  @UseGuards(AuthGuard('jwt'))
+  clearBasket(
+      @UserObj() user: User,
+  ) {
+    this.basketService.clearBasket(user);
+  }
+
+  @Delete("/:basketProductId")
+  @UseGuards(AuthGuard('jwt'))
+  removeProductFromBasket(
+    @Param("basketProductId") basketProductId: string,
+    @UserObj() user: User,
+  ): Promise<RemoveProductFromBasketRes> {
+    return this.basketService.removeProductFromBasket(basketProductId, user);
   }
 }

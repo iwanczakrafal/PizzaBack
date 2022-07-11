@@ -3,9 +3,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import {BasketService} from "../basket/basket.service";
 import { DataSource } from 'typeorm';
 import {User} from "./entities/user.entity";
-import {DeleteAccountRes, RegisterUserRes, UserInfoForAdminRes} from "../types";
+import {DeleteAccountRes, RegisterUserRes, UpdateUserPwdRes, UserInfoForAdminRes} from "../types";
 import * as striptags from 'striptags';
 import { hashPassword } from '../utils/hash-pasword';
+import {UpdateUserPwdDto} from "./dto/update-user-pwd.dto";
+
 
 @Injectable()
 export class UserService {
@@ -41,7 +43,6 @@ export class UserService {
 
   }
 
-
   async getAllUsers(): Promise<UserInfoForAdminRes[]> {
 
     return (await User.find()).map(user => this.filter(user));
@@ -51,4 +52,54 @@ export class UserService {
 
     return this.filter(await User.findOneOrFail({ where: { id } }));
   }
+
+  async updateAccountPwd(user: User, body: UpdateUserPwdDto): Promise<UpdateUserPwdRes> {
+    const { id } = await this.getOneUser(user.id);
+    try {
+      if (body.password) {
+        await this.dataSource
+            .createQueryBuilder()
+            .update(User)
+            .set({
+              passwordHash: hashPassword(striptags(body.password))
+            })
+            .where("id = :id", { id })
+            .execute();
+      }
+      return {
+        message: 'Your password has been updated.',
+        isSuccess: true
+      }
+    } catch (e) {
+
+     return {
+       message: 'Ups something went wrong. Your password has not been updated.',
+       isSuccess: false
+     }
+    }
+  }
+
+  async deleteAccount(user: User): Promise<DeleteAccountRes> {
+    const userProductsInBasket = await this.basketService.getAllBasketProductsForUser(user);
+    try {
+
+      for (const productInBasket of userProductsInBasket) {
+        await productInBasket.remove();
+      }
+      await User.delete({ id: user.id });
+
+      return {
+        isSuccess: true,
+        message: `${user.name} your account has been deleted`
+      };
+
+    } catch (e) {
+      return {
+        isSuccess: false,
+        message: `Upss ${user.name} something went wrong. Please try again`
+      };
+    }
+
+  }
+
 }

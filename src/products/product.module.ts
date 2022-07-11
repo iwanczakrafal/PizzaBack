@@ -1,7 +1,8 @@
 import {forwardRef, Module} from '@nestjs/common';
 import {ProductService} from './product.service';
 import {ProductController} from './product.controller';
-import {BasketModule} from 'src/basket/basket.module';
+import {BasketModule} from '../basket/basket.module';
+
 
 @Module({
     imports: [
