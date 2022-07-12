@@ -5,7 +5,13 @@ import {UserService} from "../user/user.service";
 import {DataSource} from "typeorm";
 import {ProductInBasket} from "./entities/product-in-basket.entity";
 import {User} from "../user/entities/user.entity";
-import {AddProductToBasketRes, GetBasketStatsRes, GetTotalBasketPriceRes, RemoveProductFromBasketRes} from "../types";
+import {
+  AddProductToBasketRes,
+  ClearBasketRes,
+  GetBasketStatsRes,
+  GetTotalBasketPriceRes,
+  RemoveProductFromBasketRes
+} from "../types";
 import {OptionService} from "../option/option.service";
 import * as striptags from "striptags";
 
@@ -65,15 +71,25 @@ export class BasketService {
         .select("productsInBasket", "userProducts")
         .from(ProductInBasket, "productsInBasket")
         .leftJoinAndSelect("productsInBasket.productItem", "productItem")
+        .leftJoinAndSelect("productsInBasket.option", "option")
         .where("productsInBasket.user = :user", { user: user.id })
         .getMany();
   }
 
-  async clearBasket(user: User) {
+  async clearBasket(user: User): Promise<ClearBasketRes> {
+    try{
 
-    return await ProductInBasket.delete({
+    await ProductInBasket.delete({
       user: {id: user.id}
     });
+      return {
+        isSuccess: true
+      };
+    }catch (err) {
+      return {
+        isSuccess: false
+      };
+    }
   }
 
   async removeProductFromBasket(basketProductId: string, user: User): Promise<RemoveProductFromBasketRes> {
@@ -102,7 +118,7 @@ export class BasketService {
 
   async getAllBasketsForAdmin(): Promise<ProductInBasket[]> {
     return ProductInBasket.find({
-      relations: ["productItem", "user"]
+      relations: ["productItem", "user","option"]
     });
 
   }
@@ -135,25 +151,13 @@ export class BasketService {
     };
   }
 
-
-
   async totalPrice(user: User): Promise<GetTotalBasketPriceRes> {
     const basketProducts = await this.getAllBasketProductsForUser(user);
-    //
-    // if (!basketProducts.every(product => this.productService.hasProduct(product.id, data))) {
-    //   const alternativeBasket = basketProducts.filter(product => this.productService.hasProduct(product.id, data));
-    //   return {
-    //     isSuccess: false,
-    //     alternativeBasket
-    //   };
-    // }
-    return (await Promise.all(basketProducts.map(async item => item.productItem.price * item.count)))
+
+    return (await Promise.all(basketProducts.map(async item => (item.productItem.price * item.count + (item.option ? item.option.price : 0))
+    )))
       .reduce((prev, curr) => prev + curr, 0);
 
   }
 
-
-  // async countPromo(): Promise<number> {
-  //   return (await this.totalPrice()) > 10 ? 1 : 0;
-  // }
 }

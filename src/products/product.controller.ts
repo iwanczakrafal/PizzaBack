@@ -42,7 +42,7 @@ export class ProductController {
         @Body() req: CreateProductDto,
         @UploadedFiles() files: MulterDiskUploadedFiles,
     ): Promise<ProductItemInterface> {
-        return this.productService.addProduct(req, files);
+        return this.productService.createProduct(req, files);
     }
 
     @Get("/")

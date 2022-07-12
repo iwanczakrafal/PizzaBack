@@ -24,7 +24,7 @@ export class ProductService {
         return {id, name, description, price}
     }
 
-    async addProduct(req: CreateProductDto, files: MulterDiskUploadedFiles): Promise<ProductItemInterface> {
+    async createProduct(req: CreateProductDto, files: MulterDiskUploadedFiles): Promise<ProductItemInterface> {
         const photo = files?.photo?.[0] ?? null;
 
         try {

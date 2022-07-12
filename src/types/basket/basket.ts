@@ -10,6 +10,8 @@ export interface RemoveProductFromBasketRes {
     isSuccess: boolean;
 }
 
+export type ClearBasketRes = RemoveProductFromBasketRes;
+
 interface OneProductInBasket {
     id: string;
     count: number;

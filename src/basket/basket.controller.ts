@@ -2,7 +2,7 @@ import {Controller, Get, Post, Body, Param, Delete, Inject, UseGuards} from '@ne
 import { BasketService } from './basket.service';
 import { AddProductToBasketDto } from './dto/add-product-to-basket.dto';
 import {
-  AddProductToBasketRes,
+  AddProductToBasketRes, ClearBasketRes,
   GetBasketStatsRes,
   GetTotalBasketPriceRes,
   ProductsFromBasketRes,
@@ -37,8 +37,6 @@ export class BasketController {
     return this.basketService.getStats();
   }
 
-
-
   @Get("/total-price")
   @UseGuards(AuthGuard('jwt'))
   getTotalPrice(
@@ -46,10 +44,6 @@ export class BasketController {
   ): Promise<GetTotalBasketPriceRes> {
     return this.basketService.totalPrice(user);
   }
-
-
-
-
 
   @Post("/")
   @UseGuards(AuthGuard('jwt'))
@@ -65,8 +59,8 @@ export class BasketController {
   @UseGuards(AuthGuard('jwt'))
   clearBasket(
       @UserObj() user: User,
-  ) {
-    this.basketService.clearBasket(user);
+  ): Promise<ClearBasketRes> {
+    return this.basketService.clearBasket(user);
   }
 
   @Delete("/:basketProductId")

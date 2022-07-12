@@ -1,7 +1,10 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Inject} from '@nestjs/common';
+import {Controller, Get, Post, Body, Param, Delete, Inject, UseGuards, Put} from '@nestjs/common';
 import { OptionService } from './option.service';
 import { CreateOptionDto } from './dto/create-option.dto';
 import { UpdateOptionDto } from './dto/update-option.dto';
+import {AuthGuard} from "@nestjs/passport";
+import {OptionItem} from "./entities/option-item.entity";
+import {UpdateOptionRes} from "../types";
 
 
 @Controller('option')
@@ -10,28 +13,39 @@ export class OptionController {
       @Inject(OptionService) private optionService: OptionService
   ) {}
 
-  @Post()
-  create(@Body() createOptionDto: CreateOptionDto) {
-    return this.optionService.create(createOptionDto);
+  @Post("/")
+  @UseGuards(AuthGuard('jwtAdmin'))
+  create(
+      @Body() req: CreateOptionDto
+  ): Promise<OptionItem> {
+    return this.optionService.createOption(req);
   }
 
-  @Get()
-  findAll() {
-    return this.optionService.findAll();
+  @Get("/")
+  getAllOptions(): Promise<OptionItem[]> {
+    return this.optionService.getAllOptions();
   }
 
-  @Get(':id')
+  @Get('/:id')
+  @UseGuards(AuthGuard('jwt'))
   findOne(@Param('id') id: string) {
     return this.optionService.getOneOption(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOptionDto: UpdateOptionDto) {
-    return this.optionService.update(+id, updateOptionDto);
+  @Put('/:id')
+  @UseGuards(AuthGuard('jwtAdmin'))
+  changeOptionPrice(
+      @Param('id') id: string,
+      @Body() body: UpdateOptionDto
+  ): Promise<UpdateOptionRes> {
+    return this.optionService.changeOptionPrice(id, body);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.optionService.remove(+id);
+  @Delete('/:id')
+  @UseGuards(AuthGuard('jwtAdmin'))
+  removeOption(
+      @Param('id') id: string
+  ) {
+    return this.optionService.removeOption(id);
   }
 }
