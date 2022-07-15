@@ -20,8 +20,8 @@ export class ProductService {
     }
 
     filter(product: ProductItem): ProductItemInterface {
-        const {id, name, description, price} = product;
-        return {id, name, description, price}
+        const {id, name, description, price, isSpecial} = product;
+        return {id, name, description, price, isSpecial}
     }
 
     async createProduct(req: CreateProductDto, files: MulterDiskUploadedFiles): Promise<ProductItemInterface> {
@@ -32,7 +32,7 @@ export class ProductService {
             newProduct.name = striptags(req.name);
             newProduct.description = striptags(req.description);
             newProduct.price = req.price;
-
+            newProduct.isSpecial = req.isSpecial;
 
             if (photo) {
                 newProduct.photo = photo.filename;

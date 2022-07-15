@@ -69,7 +69,11 @@ export class AuthService {
                         domain: 'localhost',
                         httpOnly: true,
                     })
-                    .json({ ok: true });
+                    .json({
+                        ok: true,
+                        isAdmin: true,
+                        adminToken: token.adminToken
+                    });
             }
 
             const token = await this.createToken(await this.generateToken(user));
@@ -81,7 +85,11 @@ export class AuthService {
                     domain: 'localhost',
                     httpOnly: true,
                 })
-                .json({ ok: true });
+                .json({
+                    ok: true,
+                    isAdmin: false,
+                    accessToken: token.accessToken
+                });
 
         } catch (e) {
             return res.json({error: e.message});

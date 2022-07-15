@@ -4,4 +4,5 @@ export interface ProductItemInterface {
     name: string;
     description: string;
     price: number;
+    isSpecial: boolean;
 }
