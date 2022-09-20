@@ -5,7 +5,7 @@ import { sign } from 'jsonwebtoken';
 import {JwtAdminPayload} from "./jwtAdmin.strategy";
 import {User} from "../user/entities/user.entity";
 import { v4 as uuid } from 'uuid';
-import {hashPassword} from "../utils/hash-pasword";
+import {hashPassword} from "../utils/hash-password";
 import {Response} from "express";
 
 
@@ -76,13 +76,14 @@ export class AuthService {
                     });
             }
 
-            const token = await this.createToken(await this.generateToken(user));
+            const token =  this.createToken(await this.generateToken(user));
 
             return res
                 .cookie('jwt', token.accessToken, {
 
-                    secure: false,
+                    secure: true,
                     domain: 'localhost',
+                    sameSite: 'none',
                     httpOnly: true,
                 })
                 .json({

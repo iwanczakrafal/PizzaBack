@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import {User} from "./entities/user.entity";
 import {DeleteAccountRes, RegisterUserRes, UpdateUserPwdRes, UserInfoForAdminRes} from "../types";
 import * as striptags from 'striptags';
-import { hashPassword } from '../utils/hash-pasword';
+import { hashPassword } from '../utils/hash-password';
 import {UpdateUserPwdDto} from "./dto/update-user-pwd.dto";
 
 
