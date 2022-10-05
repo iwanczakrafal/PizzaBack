@@ -1,7 +1,6 @@
 #  Pizza portal v1.0.0 backend 
 
 ## Description
-
 This is a simple rest api for pizza portal.
 As a guest you can only see the basic products, but after creating an account and logging in, you also get access to special products and the possibility of placing them in the basket.
 As an administrator, you can do what the user can do with the extension of the ability to add new products, delete, edit and view all baskets.
@@ -145,6 +144,7 @@ As Admin
 ### /basket/total-price
 As User
 * `GET` : Get total price of basket
+=======
 
 ### /basket/all
 As User
