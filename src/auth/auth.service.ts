@@ -69,6 +69,11 @@ export class AuthService {
                         domain: 'localhost',
                         httpOnly: true,
                     })
+                    .cookie('access',{isAdmin: true, user: true},{
+                        secure: true,
+                        domain: 'localhost',
+                        sameSite: 'none',
+                    })
                     .json({
                         ok: true,
                         isAdmin: true,
@@ -85,6 +90,11 @@ export class AuthService {
                     domain: 'localhost',
                     sameSite: 'none',
                     httpOnly: true,
+                })
+                .cookie('access',{user: true},{
+                    secure: true,
+                    domain: 'localhost',
+                    sameSite: 'none',
                 })
                 .json({
                     ok: true,
@@ -107,6 +117,13 @@ export class AuthService {
                     secure: false,
                     domain: 'localhost',
                     httpOnly: true,
+                }
+            );
+            res.clearCookie(
+                'access',
+                {
+                    secure: false,
+                    domain: 'localhost',
                 }
             );
             return res.json({ok: true});

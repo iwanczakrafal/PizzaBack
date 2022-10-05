@@ -12,9 +12,19 @@ export interface RemoveProductFromBasketRes {
 
 export type ClearBasketRes = RemoveProductFromBasketRes;
 
-interface OneProductInBasket {
-    id: string;
-    count: number;
+export interface OneProductInBasket {
+    id: string,
+    count: number,
+    productItem: {
+        id: string;
+        name: string;
+        price: number;
+        isSpecial: boolean;
+    };
+    option?: {
+        name: string;
+        price: number;
+    };
 }
 
 export type ProductsFromBasketRes = OneProductInBasket[];
