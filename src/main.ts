@@ -17,9 +17,15 @@ async function bootstrap() {
         transformOptions: {
           enableImplicitConversion: true,
         },
+          // skipMissingProperties: true,
       }),
   );
-  app.enableCors({origin: "http://localhost:3000"});
+  app.enableCors({
+      origin: "http://localhost:3000",
+      methods: ["POST", "GET", "DELETE", "PATCH", "PUT"],
+      credentials: true,
+      optionsSuccessStatus: 200,
+  });
   app.use(cookieParser());
   await app.listen(3001);
 }

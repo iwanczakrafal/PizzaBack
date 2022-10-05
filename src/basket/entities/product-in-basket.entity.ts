@@ -1,4 +1,4 @@
-import { OptionItem } from "src/option/entities/option-item.entity";
+import { OptionItem } from "../../option/entities/option-item.entity";
 import {BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn} from "typeorm";
 import {ProductItem} from "../../products/entities/product-item.entity";
 import {User} from "../../user/entities/user.entity";

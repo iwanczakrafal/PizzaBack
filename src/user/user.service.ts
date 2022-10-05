@@ -5,8 +5,9 @@ import { DataSource } from 'typeorm';
 import {User} from "./entities/user.entity";
 import {DeleteAccountRes, RegisterUserRes, UpdateUserPwdRes, UserInfoForAdminRes} from "../types";
 import * as striptags from 'striptags';
-import { hashPassword } from '../utils/hash-pasword';
+import { hashPassword } from '../utils/hash-password';
 import {UpdateUserPwdDto} from "./dto/update-user-pwd.dto";
+import {ProductInBasket} from "../basket/entities/product-in-basket.entity";
 
 
 @Injectable()
@@ -80,11 +81,19 @@ export class UserService {
   }
 
   async deleteAccount(user: User): Promise<DeleteAccountRes> {
-    const userProductsInBasket = await this.basketService.getAllBasketProductsForUser(user);
+    const userProductsInBasket = await this.dataSource
+        .createQueryBuilder()
+        .select("productsInBasket", "userProducts")
+        .from(ProductInBasket, "productsInBasket")
+        .leftJoinAndSelect("productsInBasket.productItem", "productItem")
+        .leftJoinAndSelect("productsInBasket.option", "option")
+        .where("productsInBasket.user = :user", {user: user.id})
+        .getMany();
+
     try {
 
       for (const productInBasket of userProductsInBasket) {
-        await productInBasket.remove();
+        await productInBasket.remove()
       }
       await User.delete({ id: user.id });
 

@@ -1,4 +1,4 @@
-import { ProductInBasket } from "src/basket/entities/product-in-basket.entity";
+import { ProductInBasket } from "../../basket/entities/product-in-basket.entity";
 import {BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity()
